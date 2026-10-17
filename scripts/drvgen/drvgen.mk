@@ -88,7 +88,7 @@ $(eval my_dtb_id:=$(shell echo $$(($(my_dtb_id)+1))))
 endef
 
 $(objtree)/dtboimg.cfg: FORCE
-	rm -f $@.tmp
+	rm -f $@.tmp; touch $@.tmp
 	$(foreach f,$(ABS_DTB_FILES),$(call mk_dtboimg_cfg,$(f),$@.tmp))
 	if ! cmp -s $@.tmp $@; then \
 		mv $@.tmp $@; \
@@ -97,7 +97,7 @@ $(objtree)/dtboimg.cfg: FORCE
 	fi
 
 $(objtree)/dtbimg.cfg: FORCE
-	rm -f $@.tmp
+	rm -f $@.tmp; touch $@.tmp
 	$(foreach f,$(ABS_DTB2_FILES),$(call mk_dtbimg_cfg,$(f),$@.tmp))
 	if ! cmp -s $@.tmp $@; then \
 		mv $@.tmp $@; \
