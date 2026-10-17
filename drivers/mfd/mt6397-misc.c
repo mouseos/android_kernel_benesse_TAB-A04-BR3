@@ -26,6 +26,7 @@
 #define RTC_PDN1		0x002c
 #define RTC_PDN2		0x002e
 #define RTC_SPAR0		0x0030
+#define RTC_AL_DOM		0x001e
 #define RTC_CON			0x003e
 #define RTC_BBPU_KEY		(0x43 << 8)
 #define RTC_BBPU_AUTO		BIT(3)
@@ -47,7 +48,9 @@ static const u16 rtc_spare_reg[][3] = {
 	{RTC_PDN2, 0x1, 7},
 	{RTC_PDN2, 0x1, 15},
 	{RTC_SPAR0, 0x1, 6},
-	{RTC_SPAR0, 0x1, 7}
+	{RTC_SPAR0, 0x1, 7},
+	/* TAB-A04-BR3 stock layout: high-charge flag in RTC_AL_DOM bit 12 */
+	{RTC_AL_DOM, 0x1, 12},
 };
 
 enum rtc_spare_enum {
@@ -65,6 +68,7 @@ enum rtc_spare_enum {
 	RTC_PWRON_LOGO,
 	RTC_32K_LESS,
 	RTC_LP_DET,
+	RTC_HICHARGE,
 	RTC_SPAR_NUM
 };
 
@@ -270,6 +274,24 @@ void mtk_misc_mark_fast(void)
 	mutex_lock(&rtc_misc->lock);
 	__mtk_misc_set_spare_register(RTC_FAST_BOOT, 0x1);
 	mutex_unlock(&rtc_misc->lock);
+}
+
+/* High-charge flag of the TAB-A04-BR3 charging flow (sts_battery_common) */
+void rtc_set_hicharge(int on)
+{
+	mutex_lock(&rtc_misc->lock);
+	__mtk_misc_set_spare_register(RTC_HICHARGE, on);
+	mutex_unlock(&rtc_misc->lock);
+}
+
+u32 rtc_get_hicharge(void)
+{
+	u32 ret;
+
+	mutex_lock(&rtc_misc->lock);
+	ret = __mtk_misc_get_spare_register(RTC_HICHARGE);
+	mutex_unlock(&rtc_misc->lock);
+	return ret;
 }
 
 static void mt_power_off(void)

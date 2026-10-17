@@ -359,6 +359,9 @@ extern signed int battery_meter_get_car(void);
 extern signed int battery_meter_get_battery_temperature(void);
 extern signed int battery_meter_get_charger_voltage(void);
 extern signed int battery_meter_get_battery_percentage(void);
+#if defined(CONFIG_STS_CHARGER_SUPPORT)
+extern signed int battery_meter_get_battery_percentage_hicharge(void);
+#endif
 extern signed int battery_meter_initial(void);
 extern signed int battery_meter_reset(void);
 extern signed int battery_meter_sync(signed int bat_i_sense_offset);

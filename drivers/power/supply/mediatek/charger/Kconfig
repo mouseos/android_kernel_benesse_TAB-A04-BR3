@@ -96,6 +96,25 @@ config MTK_BQ24296_SUPPORT
 	  and config MTK_SWCHR_SUPPORT
 	  Set to Yes if BQ24296 is used.
 
+config MTK_BQ24160_SUPPORT
+	bool "MediaTek Battery driver for TI bq24160 charger IC"
+	help
+	  This is to enable MediaTek supports to BQ24160 Charger IC,
+	  used by Benesse TAB-A04-BR3.
+	  It depends on config MTK_SMART_BATTERY.
+
+config MTK_LC709203F_SUPPORT
+	bool "MediaTek Battery driver for Onsemi LC709203F monitor IC"
+	help
+	  Fuel gauge used by Benesse TAB-A04-BR3.
+
+config STS_CHARGER_SUPPORT
+	bool "STS charger support"
+	help
+	  Charging flow of SANYO Techno Solutions Tottori (TAB-A04-BR3):
+	  replaces battery_common, battery_meter and linear_charging with
+	  the sts_* implementation from the stock kernel.
+
 config CHARGER_RT9465
 	bool "Charger Driver for Richtek RT9465 Charger IC"
 	default n

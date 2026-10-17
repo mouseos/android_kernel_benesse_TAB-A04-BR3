@@ -39,11 +39,19 @@ else
 obj-y += $(subst ",,$(CONFIG_MTK_PLATFORM))/
 endif
 
+ifeq ($(CONFIG_MTK_LC709203F_SUPPORT),y)
+     obj-$(CONFIG_MTK_SMART_BATTERY) += lc709203f.o
+endif
+
+ifeq ($(CONFIG_MTK_BQ24160_SUPPORT),y)
+     obj-$(CONFIG_MTK_SMART_BATTERY) += bq24160.o
+else
 ifeq ($(CONFIG_MTK_BQ24196_SUPPORT),y)
      obj-$(CONFIG_MTK_SMART_BATTERY) += bq24196.o
 else
 ifeq ($(CONFIG_MTK_BQ24296_SUPPORT),y)
      obj-$(CONFIG_MTK_SMART_BATTERY) += bq24296.o
+endif
 endif
 endif
 

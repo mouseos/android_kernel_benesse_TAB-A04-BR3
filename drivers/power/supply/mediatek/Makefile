@@ -24,7 +24,10 @@ ifeq ($(CONFIG_MTK_GAUGE_VERSION),30)
 endif
 endif
 
-ifeq ($(CONFIG_MTK_GAUGE_VERSION),30)
+ifeq ($(CONFIG_STS_CHARGER_SUPPORT),y)
+	obj-$(CONFIG_MTK_SMART_BATTERY) += sts_battery_meter.o sts_battery_common.o
+	obj-$(CONFIG_MTK_SMART_BATTERY) += sts_linear_charging.o
+else ifeq ($(CONFIG_MTK_GAUGE_VERSION),30)
 	obj-$(CONFIG_MTK_CHARGER) += charger/
 else ifeq ($(CONFIG_MTK_GAUGE_VERSION),20)
 	obj-$(CONFIG_MTK_SMART_BATTERY) += battery_meter_fg_20.o battery_common_fg_20.o
@@ -36,7 +39,9 @@ else
 	obj-$(CONFIG_MTK_PUMP_EXPRESS_PLUS_20_SUPPORT) += mtk_pep20_intf.o
 endif
 
-ifeq ($(CONFIG_MTK_GAUGE_VERSION),30)
+ifeq ($(CONFIG_STS_CHARGER_SUPPORT),y)
+	#sts_linear_charging.o above
+else ifeq ($(CONFIG_MTK_GAUGE_VERSION),30)
 	#nothing
 else
 	ifeq ($(CONFIG_MTK_SWCHR_SUPPORT),y)

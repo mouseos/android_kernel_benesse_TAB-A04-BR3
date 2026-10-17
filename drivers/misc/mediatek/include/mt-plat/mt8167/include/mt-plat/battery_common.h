@@ -181,6 +181,13 @@ struct pmu_chargerstruct {
 	unsigned int nPercent_ZCV;
 	unsigned int nPrecent_UI_SOC_check_point;
 	unsigned int ZCV;
+#if defined(CONFIG_STS_CHARGER_SUPPORT)
+	enum kal_bool hv_status;
+	unsigned int sts_err_flags;
+	enum kal_bool hicharge;
+#define STS_ERR_BATTERYTEMP 0x0001
+#define STS_ERR_HVSTATUS 0x0002
+#endif
 };
 
 struct battery_custom_data {
@@ -350,6 +357,9 @@ extern bool mt_usb_is_device(void);
 #if defined(CONFIG_USB_MTK_HDRC) || defined(CONFIG_USB_MU3D_DRV)
 extern void mt_usb_connect(void);
 extern void mt_usb_disconnect(void);
+#if defined(CONFIG_STS_CHARGER_SUPPORT)
+extern enum PMU_STATUS BAT_BatteryStatusFailAction(void);
+#endif
 #else
 #define mt_usb_connect()                                                       \
 	do {                                                                   \
