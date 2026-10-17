@@ -815,3 +815,9 @@
 	};
 /* USB GPIO end */
 };
+
+/* MT6392 internal speaker amp (stock CONFIG_MTK_SPEAKER=y, BSP aiot8362am3). */
+&mt6392_audio_codec {
+	mediatek,speaker-mode = <0>; /* 0(CLASSD) 1(CLASSAB) */
+	status = "okay";
+};
