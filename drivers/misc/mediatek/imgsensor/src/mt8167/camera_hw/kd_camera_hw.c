@@ -407,7 +407,30 @@ static int power_on(enum CAMERA_DUAL_CAMERA_SENSOR_ENUM SensorIdx,
 
 	ISP_MCLK1_EN(1);
 
-	if (pinSetIdx == 0 && currSensorName
+	if (currSensorName
+	    && (strcmp(currSensorName, SENSOR_DRVNAME_HI556_MIPI_RAW) == 0)) {
+		/* stock TAB-A04-BR3: RST/PDN low, IO 1.8V, A 2.8V, D 1.2V */
+		if (pinSet[pinSetIdx][IDX_PS_CMRST] != GPIO_CAMERA_INVALID)
+			mtkcam_gpio_set(pinSetIdx, CAMRST,
+				pinSet[pinSetIdx][IDX_PS_CMRST + IDX_PS_OFF]);
+		if (pinSet[pinSetIdx][IDX_PS_CMPDN] != GPIO_CAMERA_INVALID)
+			mtkcam_gpio_set(pinSetIdx, CAMPDN,
+				pinSet[pinSetIdx][IDX_PS_CMPDN + IDX_PS_OFF]);
+		if (_hwPowerOnCnt(pinSetIdx, VCAMIO, VOL_1800, mode_name) != TRUE)
+			goto _kdCISModulePowerOn_exit_;
+		if (_hwPowerOnCnt(pinSetIdx, VCAMA, VOL_2800, mode_name) != TRUE)
+			goto _kdCISModulePowerOn_exit_;
+		if (_hwPowerOnCnt(pinSetIdx, VCAMD, VOL_1200, mode_name) != TRUE)
+			goto _kdCISModulePowerOn_exit_;
+		if (pinSet[pinSetIdx][IDX_PS_CMPDN] != GPIO_CAMERA_INVALID)
+			mtkcam_gpio_set(pinSetIdx, CAMPDN,
+				pinSet[pinSetIdx][IDX_PS_CMPDN + IDX_PS_ON]);
+		mdelay(1);
+		if (pinSet[pinSetIdx][IDX_PS_CMRST] != GPIO_CAMERA_INVALID)
+			mtkcam_gpio_set(pinSetIdx, CAMRST,
+				pinSet[pinSetIdx][IDX_PS_CMRST + IDX_PS_ON]);
+		mdelay(1);
+	} else if (pinSetIdx == 0 && currSensorName
 	    && (strcmp(currSensorName, SENSOR_DRVNAME_IMX219_MIPI_RAW) == 0)) {
 		cam_pr_debug("----SENSOR_DRVNAME_IMX219_MIPI_RAW: %s\n",
 		       SENSOR_DRVNAME_IMX219_MIPI_RAW);
@@ -996,7 +1019,23 @@ static int power_off(enum CAMERA_DUAL_CAMERA_SENSOR_ENUM SensorIdx,
 	};
 
 	ISP_MCLK1_EN(0);
-	if (pinSetIdx == 0 && currSensorName
+	if (currSensorName
+	    && (strcmp(currSensorName, SENSOR_DRVNAME_HI556_MIPI_RAW) == 0)) {
+		if (pinSet[pinSetIdx][IDX_PS_CMRST] != GPIO_CAMERA_INVALID)
+			mtkcam_gpio_set(pinSetIdx, CAMRST,
+				pinSet[pinSetIdx][IDX_PS_CMRST + IDX_PS_OFF]);
+		mdelay(1);
+		if (pinSet[pinSetIdx][IDX_PS_CMPDN] != GPIO_CAMERA_INVALID)
+			mtkcam_gpio_set(pinSetIdx, CAMPDN,
+				pinSet[pinSetIdx][IDX_PS_CMPDN + IDX_PS_OFF]);
+		mdelay(1);
+		if (_hwPowerDownCnt(pinSetIdx, VCAMD, mode_name) != TRUE)
+			goto _kdCISModulePowerOn_exit_;
+		if (_hwPowerDownCnt(pinSetIdx, VCAMA, mode_name) != TRUE)
+			goto _kdCISModulePowerOn_exit_;
+		if (_hwPowerDownCnt(pinSetIdx, VCAMIO, mode_name) != TRUE)
+			goto _kdCISModulePowerOn_exit_;
+	} else if (pinSetIdx == 0 && currSensorName
 	    && (strcmp(currSensorName,
 			SENSOR_DRVNAME_IMX219_MIPI_RAW) == 0)) {
 		/* Set Power Pin low and Reset Pin Low */
