@@ -29,6 +29,14 @@
 #include <hwmsensor.h>
 #include <accel.h>
 
+/* Removed from sensors_io.h in this tree; same values as lis3dh.c here. */
+#ifndef GSENSOR_IOCTL_READ_OFFSET
+#define GSENSOR_IOCTL_READ_OFFSET	_IOR(GSENSOR, 0x04, struct GSENSOR_VECTOR3D)
+#endif
+#ifndef GSENSOR_IOCTL_READ_GAIN
+#define GSENSOR_IOCTL_READ_GAIN	_IOR(GSENSOR, 0x05, struct GSENSOR_VECTOR3D)
+#endif
+
 /*---------------------------------------------------------------------------*/
 #define DEBUG 1
 /*----------------------------------------------------------------------------*/
