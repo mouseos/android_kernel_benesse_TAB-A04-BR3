@@ -663,6 +663,10 @@ struct mem_desc_t {
 	unsigned int offset;
 };
 
+/* "mediatek,ram_console" area from /reserved-memory, for LKs without a descriptor */
+static phys_addr_t ram_console_dt_base;
+static phys_addr_t ram_console_dt_size;
+
 #ifdef CONFIG_OF
 static int __init dt_get_ram_console(unsigned long node, const char *uname,
 		int depth, void *data)
@@ -807,6 +811,22 @@ static int __init ram_console_early_init(void)
 	unsigned int start, size;
 
 	if (of_scan_flat_dt(dt_get_ram_console, &sram)) {
+		/*
+		 * Older LKs (e.g. TAB-A04-BR3's) pass no /chosen "ram_console"
+		 * descriptor. Use the no-map "mediatek,ram_console" DRAM area
+		 * from the device tree instead, as the 4.4 driver did.
+		 */
+		if (!sram.size && !sram.def_type && ram_console_dt_size) {
+			pr_notice("ram_console: no LK descriptor, using dram:0x%llx\n",
+				(unsigned long long)ram_console_dt_base);
+			buffer_size = ram_console_dt_size;
+			bufp = ioremap_wc(ram_console_dt_base, buffer_size);
+			if (!bufp)
+				ram_console_fatal("ioremap failed");
+			ram_console_buffer_pa = (struct ram_console_buffer *)
+				(unsigned long)ram_console_dt_base;
+			goto init;
+		}
 		ram_console_parse_memory_info(&sram, &memory_info_data);
 		if (sram.def_type == RAM_CONSOLE_DEF_SRAM) {
 			pr_info("ram_console: using sram:0x%x\n", sram.start);
@@ -854,6 +874,7 @@ static int __init ram_console_early_init(void)
 #error "CONFIG_OF NOT defined"
 #endif
 
+init:
 	pr_notice("ram_console: buffer start: 0x%lx, size: 0x%zx\n",
 			(unsigned long)bufp, buffer_size);
 	mtk_cpu_num = num_present_cpus();
@@ -911,6 +932,8 @@ int ram_console_pstore_reserve_memory(struct reserved_mem *rmem)
 
 int ram_console_binary_reserve_memory(struct reserved_mem *rmem)
 {
+	ram_console_dt_base = rmem->base;
+	ram_console_dt_size = rmem->size;
 	pr_info("[memblock]%s: 0x%llx - 0x%llx (0x%llx)\n",
 		"mediatek,ram_console",
 		 (unsigned long long)rmem->base,

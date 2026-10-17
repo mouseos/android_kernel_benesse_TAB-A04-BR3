@@ -48,6 +48,19 @@
 		compatible = "mediatek,mt8167-cpufreq";
 	};
 
+	/* Internal MT8167 audio codec; the mt8167-mt6392 machine binds "mt8167-codec". */
+	mt8167_audio_codec: mt8167_audio_codec {
+		compatible = "mediatek,mt8167-codec";
+		clocks = <&topckgen CLK_TOP_AUDIO>;
+		clock-names = "bus";
+		mediatek,afe-regmap = <&afe>;
+		mediatek,apmixedsys-regmap = <&apmixedsys>;
+		mediatek,pwrap-regmap = <&pwrap>;
+		mediatek,speaker-mode = <0>; /* 0(CLASSD) 1(CLASSAB) */
+		mediatek,dmic-wire-mode = <1>; /* 0(ONE_WIRE) 1(TWO_WIRE) */
+		mediatek,headphone-cap-sel = <1>; /* 0(10UF) 1(22UF) 2(33UF) 3(47UF) */
+	};
+
 	panel: panel@0 {
 		compatible = "mediatek,auo_wxga_dsi";
 		gpio_lcd_bl_en = <&pio 1 0>;
@@ -127,6 +140,45 @@
  */
 &atf_reserved_memory {
 	reg = <0 0x43000000 0 0x30000>;
+};
+
+/*
+ * DRAM debug areas at the stock addresses. The stock (4.4-era) LK does not
+ * pass the /chosen "ram_console" descriptor of the 4.14 MTK ram_console, so
+ * that driver falls back to this no-map area (as the stock 4.4 kernel used
+ * it); the pstore area goes to the generic ramoops driver.
+ */
+&reserved_memory {
+	ram_console-reserved-memory@44400000 {
+		compatible = "mediatek,ram_console";
+		reg = <0 0x44400000 0 0x10000>;
+		no-map;
+	};
+
+	ramoops@44410000 {
+		compatible = "ramoops";
+		reg = <0 0x44410000 0 0xe0000>;
+		record-size = <0x10000>;
+		console-size = <0x40000>;
+		pmsg-size = <0x40000>;
+		no-map;
+	};
+
+	minirdump-reserved-memory@444f0000 {
+		reg = <0 0x444f0000 0 0x10000>;
+		no-map;
+	};
+
+	consys-reserve-memory {
+		compatible = "mediatek,consys-reserve-memory";
+		no-map;
+		size = <0 0x200000>;
+		alignment = <0 0x200000>;
+	};
+};
+
+&auxadc {
+	status = "okay";
 };
 
 &bat_comm {

@@ -59,17 +59,22 @@ static int __init dt_get_boot_common(unsigned long node, const char *uname,
 	int depth, void *data)
 {
 	struct tag_bootmode *tags = NULL;
+	int len = 0;
 
 	if (depth != 1 || (strcmp(uname, "chosen") != 0 &&
 		strcmp(uname, "chosen@0") != 0))
 		return 0;
 
 	tags = (struct tag_bootmode *)of_get_flat_dt_prop(node,
-		"atag,boot", NULL);
+		"atag,boot", &len);
 
 	if (tags) {
 		g_boot_mode = tags->bootmode;
-		g_boot_type = tags->boottype;
+		/* Older LKs (e.g. TAB-A04-BR3's) pass no boottype field. */
+		if (len >= (int)sizeof(struct tag_bootmode))
+			g_boot_type = tags->boottype;
+		else
+			g_boot_type = BOOTDEV_SDMMC;
 		/* Add default value if no lk pass storage type */
 		if ((g_boot_type > 2) || (g_boot_type < 0))
 			g_boot_type = BOOTDEV_SDMMC;
