@@ -178,6 +178,17 @@ config TOUCHSCREEN_MTK_GT9157
 
 source "drivers/input/touchscreen/mediatek/GT9157/Kconfig"
 
+config TOUCHSCREEN_MTK_BU21025
+	tristate "BU21025 based touchscreens"
+	depends on I2C
+	help
+	  Say Y here if you have the ROHM BU21025 resistive touchscreen
+	  controller used by TAB-A04-BR3.
+
+	  If unsure, say N.
+
+source "drivers/input/touchscreen/mediatek/BU21025/Kconfig"
+
 config TOUCHSCREEN_MTK_GT9110
 	bool "GT9110 for Mediatek package"
 	help
