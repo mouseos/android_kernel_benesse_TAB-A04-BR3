@@ -477,7 +477,7 @@
 
 	RTP_pins_default: eint0default {
 		pins_cmd_dat {
-			pins = <MT8167_PIN_8_EINT8__FUNC_GPIO8>;
+			pinmux = <MT8167_PIN_8_EINT8__FUNC_GPIO8>;
 			slew-rate = <0>;
 			bias-disable;
 		};
@@ -485,7 +485,7 @@
 
 	RTP_pins_eint_as_int: eint@0 {
 		pins_cmd_dat {
-			pins = <MT8167_PIN_8_EINT8__FUNC_GPIO8>;
+			pinmux = <MT8167_PIN_8_EINT8__FUNC_GPIO8>;
 			slew-rate = <0>;
 			bias-disable;
 		};
@@ -493,7 +493,7 @@
 
 	RTP_pins_eint_output0: eintoutput0 {
 		pins_cmd_dat {
-			pins = <MT8167_PIN_8_EINT8__FUNC_GPIO8>;
+			pinmux = <MT8167_PIN_8_EINT8__FUNC_GPIO8>;
 			slew-rate = <1>;
 			output-low;
 		};
@@ -501,7 +501,7 @@
 
 	RTP_pins_eint_output1: eintoutput1 {
 		pins_cmd_dat {
-			pins = <MT8167_PIN_8_EINT8__FUNC_GPIO8>;
+			pinmux = <MT8167_PIN_8_EINT8__FUNC_GPIO8>;
 			slew-rate = <1>;
 			output-high;
 		};
@@ -735,14 +735,14 @@
 /* USB GPIO start */
 	usb0_drvvbus: drvvbus_init {
 		pins_cmd_dat {
-			pins = <MT8167_PIN_22_EINT22__FUNC_GPIO22>;
+			pinmux = <MT8167_PIN_22_EINT22__FUNC_GPIO22>;
 			output-low;
 		};
 	};
 
 	usb0_drvvbus_high: drvvbus_high {
 		pins_cmd_dat {
-			pins = <MT8167_PIN_22_EINT22__FUNC_GPIO22>;
+			pinmux = <MT8167_PIN_22_EINT22__FUNC_GPIO22>;
 			slew-rate = <1>;
 			output-high;
 		};
@@ -750,7 +750,7 @@
 
 	usb0_drvvbus_low: drvvbus_low {
 		pins_cmd_dat {
-			pins = <MT8167_PIN_22_EINT22__FUNC_GPIO22>;
+			pinmux = <MT8167_PIN_22_EINT22__FUNC_GPIO22>;
 			slew-rate = <1>;
 			output-low;
 		};
@@ -758,7 +758,7 @@
 
 	usb0_iddig: iddig_irq_init {
 		pins_cmd_dat {
-			pins = <MT8167_PIN_41_KPROW1__FUNC_IDDIG>;
+			pinmux = <MT8167_PIN_41_KPROW1__FUNC_IDDIG>;
 			slew-rate = <0>;
 			bias-pull-up = <00>;
 		};
@@ -766,7 +766,7 @@
 
 	usb0_oc: oc_irq_init {
 		pins_cmd_dat {
-			pins = <MT8167_PIN_21_EINT21__FUNC_GPIO21>;
+			pinmux = <MT8167_PIN_21_EINT21__FUNC_GPIO21>;
 			slew-rate = <0>;
 			bias-pull-up = <00>;
 		};
