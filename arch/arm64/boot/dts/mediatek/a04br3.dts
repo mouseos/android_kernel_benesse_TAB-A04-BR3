@@ -358,8 +358,13 @@
 
 /* MT6630 combo chip over SDIO */
 &mmc2 {
-	pinctrl-names = "default", "state_uhs";
+	/* mtk-sdio needs all four states; with SUPPORT_LEGACY_SDIO (MT6630,
+	 * Wi-Fi interrupt on its own EINT) dat1/eint are only looked up. */
+	pinctrl-names = "default", "state_uhs", "state_dat1", "state_eint";
 	pinctrl-0 = <&mmc2_pins_default>;
+	pinctrl-1 = <&mmc2_pins_uhs>;
+	pinctrl-2 = <&mmc2_pins_dat1>;
+	pinctrl-3 = <&mmc2_pins_eint>;
 	status = "okay";
 	clk_src = <2>;
 	host_function = <2>;
@@ -729,6 +734,43 @@
 			pinmux = <MT8167_PIN_69_MSDC2_CLK__FUNC_MSDC2_CLK>;
 			drive-strength = <MTK_DRIVE_8mA>;
 			bias-pull-down = <MTK_PUPD_SET_R1R0_10>;
+		};
+	};
+
+	/* same pads as mmc2_pins_default (as in the BSP's mmc2_pins_uhs) */
+	mmc2_pins_uhs: mmc2uhs {
+		pins_cmd_dat {
+			pinmux = <MT8167_PIN_70_MSDC2_DAT0__FUNC_MSDC2_DAT0>,
+				<MT8167_PIN_71_MSDC2_DAT1__FUNC_MSDC2_DAT1>,
+				<MT8167_PIN_72_MSDC2_DAT2__FUNC_MSDC2_DAT2>,
+				<MT8167_PIN_73_MSDC2_DAT3__FUNC_MSDC2_DAT3>,
+				<MT8167_PIN_68_MSDC2_CMD__FUNC_MSDC2_CMD>;
+			input-enable;
+			drive-strength = <MTK_DRIVE_8mA>;
+			bias-pull-up = <MTK_PUPD_SET_R1R0_01>;
+		};
+
+		pins_clk {
+			pinmux = <MT8167_PIN_69_MSDC2_CLK__FUNC_MSDC2_CLK>;
+			drive-strength = <MTK_DRIVE_8mA>;
+			bias-pull-down = <MTK_PUPD_SET_R1R0_10>;
+		};
+	};
+
+	mmc2_pins_dat1: mmc2dat1 {
+		pins_dat1 {
+			pinmux = <MT8167_PIN_71_MSDC2_DAT1__FUNC_MSDC2_DAT1>;
+			input-enable;
+			drive-strength = <MTK_DRIVE_8mA>;
+			bias-pull-up = <MTK_PUPD_SET_R1R0_10>;
+		};
+	};
+
+	mmc2_pins_eint: mmc2dat1eint {
+		pins_dat1 {
+			pinmux = <MT8167_PIN_71_MSDC2_DAT1__FUNC_GPIO71>;
+			input-enable;
+			bias-pull-up = <MTK_PUPD_SET_R1R0_10>;
 		};
 	};
 
