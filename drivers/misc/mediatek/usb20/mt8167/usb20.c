@@ -25,6 +25,9 @@
 #include <linux/platform_device.h>
 #include <linux/of_address.h>
 #include <linux/of_irq.h>
+#include <linux/of_gpio.h>
+#include <linux/gpio.h>
+#include <linux/interrupt.h>
 
 #include "musbhsdma.h"
 #include <mt-plat/upmu_common.h>
@@ -547,6 +550,64 @@ void mt_usb_disconnect(void)
 #define BYPASS_PMIC_LINKAGE
 #endif
 
+/*
+ * Boards such as TAB-A04-BR3 route VBUS to an external charger, so the
+ * PMIC CHRDET does not see the cable. They report it on "usb_detect_gpio"
+ * (low = cable present), as the stock kernel-4.4 of TAB-A04-BR3 did.
+ */
+static int usb_detect_pin = -EINVAL;
+static bool usb_detect_state;
+
+static bool is_usb_det(void)
+{
+	return gpio_get_value(usb_detect_pin) ? false : true;
+}
+
+static irqreturn_t mt_usb_detect_int(int irq, void *dev_id)
+{
+	bool present = is_usb_det();
+
+	irq_set_irq_type(irq, present ? IRQF_TRIGGER_HIGH : IRQF_TRIGGER_LOW);
+	if (present == usb_detect_state)
+		return IRQ_HANDLED;
+	usb_detect_state = present;
+	DBG(0, "usb cable %s\n", present ? "connect" : "disconnect");
+	if (present)
+		mt_usb_connect();
+	else
+		mt_usb_disconnect();
+	return IRQ_HANDLED;
+}
+
+static void mt_usb_detect_init(struct platform_device *pdev)
+{
+	struct device_node *np = pdev->dev.of_node;
+	int irq, ret;
+
+	usb_detect_pin = of_get_named_gpio(np, "usb_detect_gpio", 0);
+	if (!gpio_is_valid(usb_detect_pin))
+		return;
+	ret = devm_gpio_request_one(&pdev->dev, usb_detect_pin, GPIOF_IN,
+				    "usb_detect");
+	if (ret) {
+		DBG(0, "usb_detect_gpio request failed: %d\n", ret);
+		usb_detect_pin = -EINVAL;
+		return;
+	}
+	irq = gpio_to_irq(usb_detect_pin);
+	usb_detect_state = false;
+	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
+					mt_usb_detect_int,
+					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+					"USB_DETECT", NULL);
+	if (ret) {
+		DBG(0, "usb_detect irq %d request failed: %d\n", irq, ret);
+		return;
+	}
+	irq_set_irq_wake(irq, 1);
+	DBG(0, "usb_detect_gpio %d irq %d\n", usb_detect_pin, irq);
+}
+
 #if !(defined(CONFIG_POWER_EXT) && defined(CONFIG_MFD_MT6397))
 static enum charger_type musb_hal_get_charger_type(void)
 {
@@ -572,7 +633,10 @@ static bool musb_hal_is_vbus_exist(void)
 #ifdef CONFIG_POWER_EXT
 	vbus_exist = upmu_get_rgs_chrdet();
 #else
-	vbus_exist = upmu_is_chr_det();
+	if (gpio_is_valid(usb_detect_pin))
+		vbus_exist = is_usb_det();
+	else
+		vbus_exist = upmu_is_chr_det();
 #endif
 #else
 	vbus_exist = true;
@@ -1762,6 +1826,8 @@ static int mt_usb_probe(struct platform_device *pdev)
 	}
 	irq_set_irq_wake(usb_chrdet_number, 1);
 #endif
+
+	mt_usb_detect_init(pdev);
 
 	DBG(0, "[U2]success to register musb\n");
 	return 0;
