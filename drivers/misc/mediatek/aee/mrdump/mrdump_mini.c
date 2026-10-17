@@ -1027,6 +1027,13 @@ int mrdump_mini_init(void)
 
 int mini_rdump_reserve_memory(struct reserved_mem *rmem)
 {
+	/*
+	 * The preloader normally passes this area through the ram_console
+	 * memory info, which then overrides it; TAB-A04-BR3's stock (4.4-era)
+	 * preloader does not, so use the "mediatek,minirdump" area instead.
+	 */
+	if (!mrdump_mini_addr && !mrdump_mini_size)
+		mrdump_mini_set_addr_size(rmem->base, rmem->size);
 	pr_info("[memblock]%s: 0x%llx - 0x%llx (0x%llx)\n",
 		"mediatek,minirdump",
 		 (unsigned long long)rmem->base,

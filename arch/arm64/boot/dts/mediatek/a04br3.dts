@@ -165,8 +165,9 @@
 	};
 
 	minirdump-reserved-memory@444f0000 {
+		/* mapped: mrdump_mini maps it with remap_lowmem() */
+		compatible = "mediatek,minirdump";
 		reg = <0 0x444f0000 0 0x10000>;
-		no-map;
 	};
 
 	consys-reserve-memory {
@@ -377,6 +378,11 @@
 };
 
 &mt6392_vgp2_reg {
+	regulator-boot-on;
+};
+
+/* stock dtb: vcama is left on by the bootloader */
+&mt6392_vcama_reg {
 	regulator-boot-on;
 };
 

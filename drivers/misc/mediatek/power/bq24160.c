@@ -99,8 +99,12 @@ int bq24160_read_byte(unsigned char cmd, unsigned char *returnData)
 	char     readData = 0;
 	int      ret = 0;
 	struct i2c_msg msg[2];
-	struct i2c_adapter *adap = new_client->adapter;
+	struct i2c_adapter *adap;
 
+	/* the battery thread may run before this driver has probed */
+	if (!new_client)
+		return 0;
+	adap = new_client->adapter;
 	mutex_lock(&bq24160_i2c_access);
 
 	msg[0].addr	 = new_client->addr;
@@ -132,8 +136,11 @@ int bq24160_write_byte(unsigned char cmd, unsigned char writeData)
 	char write_data[2] = { 0 };
 	int ret = 0;
 	struct i2c_msg msg;
-	struct i2c_adapter *adap = new_client->adapter;
+	struct i2c_adapter *adap;
 
+	if (!new_client)
+		return 0;
+	adap = new_client->adapter;
 //	pr_debug( "[%s] cmd: 0x%02X, val: 0x%02X.\n", __func__, cmd, writeData);
 
 	mutex_lock(&bq24160_i2c_access);

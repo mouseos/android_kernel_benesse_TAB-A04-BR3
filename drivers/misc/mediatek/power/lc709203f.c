@@ -94,6 +94,9 @@ static int lc709203f_write_reg(struct i2c_client *client, u8 reg, u16 value)
 	u8 buf[3];
 	u8 crc8;
 
+	/* the battery thread may run before this driver has probed */
+	if (!client)
+		return -ENODEV;
 	buf[0] = value & 0x00ff;
 	buf[1] = value >> 8;
 	crc8 = lc709203f_crc8( 0, 0x16);
@@ -118,6 +121,8 @@ static int lc709203f_read_reg(struct i2c_client *client, u8 reg, u16 *value)
 	u8 crc8;
 	int ret;
 
+	if (!client)
+		return -ENODEV;
 	ret = i2c_smbus_read_i2c_block_data(client, reg, 3, buf);
 	//printk("[lc709203f] %s (0x%02X) => 0x%04X #%hu ret=%d\n", __FUNCTION__, reg, *(u16*)buf, *(u16*)buf, ret);
 
