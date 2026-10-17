@@ -116,6 +116,9 @@
 };
 
 &accdet {
+	/* stock 4.4 accdet: MULTIKEY_ADC_CHANNEL 15 */
+	io-channels = <&auxadc 15>;
+	io-channel-names = "accdet-channel";
 	mediatek,apmixedsys-regmap = <&apmixedsys>;
 	interrupts-extended = <&sysirq GIC_SPI 152 IRQ_TYPE_LEVEL_LOW>,
 				<&pio 19 IRQ_TYPE_LEVEL_LOW>;
