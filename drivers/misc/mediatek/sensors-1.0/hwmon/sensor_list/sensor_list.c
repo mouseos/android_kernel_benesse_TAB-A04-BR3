@@ -175,6 +175,9 @@ int sensorlist_register_deviceinfo(int sensor,
 		devinfo->name,
 		sizeof(sensorlist_info[handle].name));
 	spin_unlock(&sensorlist_info_lock);
+	/* without a sensor hub there is no ready event; the list is ready
+	 * once a driver has registered */
+	atomic_set(&first_ready_after_boot, 1);
 	return 0;
 }
 #endif

@@ -347,6 +347,9 @@ static unsigned int charging_get_charger_type(void *data)
 		*(enum charger_type *) (data) = STANDARD_CHARGER;
 	else if(ret_val == 0x02)
 		*(enum charger_type *) (data) = STANDARD_HOST;
+	else if (ret_val == 0x03)
+		/* adapter on IN and a host on USB: charge from IN, enable USB data */
+		*(enum charger_type *) (data) = CHARGING_HOST;
 
 	return status;
 }

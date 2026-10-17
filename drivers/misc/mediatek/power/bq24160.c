@@ -862,7 +862,14 @@ unsigned int bq24160_get_charger_type(void)
 {
 	unsigned char val = 0;
 
-	if(gpio_get_value(acdet_gpio) == 0)
+	/*
+	 * 1: AC adapter, 2: USB, 3: AC adapter and USB together. The stock
+	 * kernel returned 1 for the last case, which left the USB port
+	 * charge-only (no adb/MTP) whenever the adapter was plugged in.
+	 */
+	if (gpio_get_value(acdet_gpio) == 0 && gpio_get_value(usbdet_gpio) == 0)
+		val = 3;
+	else if (gpio_get_value(acdet_gpio) == 0)
 		val = 1;
 	else if(gpio_get_value(usbdet_gpio) == 0)
 		val = 2;

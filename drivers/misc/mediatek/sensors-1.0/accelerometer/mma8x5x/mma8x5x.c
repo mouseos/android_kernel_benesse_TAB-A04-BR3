@@ -28,6 +28,7 @@
 #include <cust_acc.h>
 #include <hwmsensor.h>
 #include <accel.h>
+#include <sensor_list.h>
 
 /* Removed from sensors_io.h in this tree; same values as lis3dh.c here. */
 #ifndef GSENSOR_IOCTL_READ_OFFSET
@@ -1554,6 +1555,14 @@ static int mmx8x5x_i2c_probe(struct i2c_client *client, const struct i2c_device_
 	{
 		GSE_ERR("register acc data path err= %d\n", err);
 		goto exit_init_failed;
+	}
+
+	{
+		/* the sensors HAL builds its list from /dev/sensorlist */
+		struct sensorInfo_NonHub_t devinfo = { .name = "MMA8652" };
+
+		if (sensorlist_register_deviceinfo(ID_ACCELEROMETER, &devinfo))
+			GSE_ERR("sensorlist register failed\n");
 	}
 
 	mmx8x5x_init_flag = 0;
