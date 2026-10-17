@@ -120,6 +120,15 @@
 	mediatek,tdm-out-mode = <0>;
 };
 
+/*
+ * The stock preloader loads the stock ATF at 0x43000000 and protects
+ * 0x43000000-0x4302ffff as secure memory ([TZ_INIT] on the unit's UART);
+ * mt8167.dtsi places it where the BSP's own ATF lives (0x54600000).
+ */
+&atf_reserved_memory {
+	reg = <0 0x43000000 0 0x30000>;
+};
+
 &bat_comm {
 	interrupt-parent = <&pio>;
 	interrupts = <11 IRQ_TYPE_EDGE_RISING>;
