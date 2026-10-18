@@ -34,7 +34,7 @@ def main():
             candidate = False
         if candidate:
             break
-        time.sleep(5)
+        time.sleep(0.2)
     else:
         print("No supported boot transport appeared before 07:30; no write performed", flush=True)
         return
