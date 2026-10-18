@@ -886,7 +886,16 @@ void bq24160_dump_register(void)
 	printk("\n");
 }
 
+#ifdef CONFIG_USB_G_ANDROID
 extern int android_device_connected(void);
+#else
+/* Configfs has no legacy android gadget singleton; use MUSB cable state. */
+extern bool usb_cable_connected(void);
+static int android_device_connected(void)
+{
+	return usb_cable_connected();
+}
+#endif
 
 void bq24160_charge_init(void)
 {
