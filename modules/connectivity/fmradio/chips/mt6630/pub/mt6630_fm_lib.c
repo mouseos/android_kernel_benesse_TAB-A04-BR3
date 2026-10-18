@@ -19,6 +19,10 @@ static bool fm_verify_init;
 module_param(fm_verify_init, bool, 0644);
 MODULE_PARM_DESC(fm_verify_init, "Read back DSP readiness and reject false init completion");
 
+static bool fm_analog_init_test;
+module_param(fm_analog_init_test, bool, 0444);
+MODULE_PARM_DESC(fm_analog_init_test, "Select the stock analog audio path for init diagnosis");
+
 #include "stp_exp.h"
 #include "wmt_exp.h"
 
@@ -779,6 +783,11 @@ static signed int mt6630_PowerUp(unsigned short *chip_id, unsigned short *device
 	}
 
 	WCN_DBG(FM_DBG | CHIP, "pwr on seq......\n");
+	if (fm_analog_init_test) {
+		WCN_DBG(FM_NTC | CHIP, "diagnostic audio path %d -> analog (0)\n",
+			fm_config.aud_cfg.aud_path);
+		fm_config.aud_cfg.aud_path = FM_AUD_ANALOG;
+	}
 
 	ret = fm_host_reg_read(0x80021010, &reg);
 	if (ret) {

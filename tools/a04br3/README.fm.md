@@ -121,3 +121,33 @@ There is no defensible quantitative basis for a 99% hardware-omission claim.
 Useful new inputs are a QP/board schematic identifying AVDD33_FM and RTCCLK,
 measurements at those nets, or an MT6630-specific documented internal-32K
 frequency setup sequence. This is an unresolved FM bring-up result.
+
+## Pending analog-path initialization comparison
+
+The previous Armbian skip_i2s_setup parameter only bypasses I2S register
+setup. Its clock-on builder still tests aud_path and selects bit 7 of
+register 0x61 for every path other than FM_AUD_ANALOG. Skipping setup is
+therefore not equivalent to selecting analog output. No completed analog
+mode test was found in the reviewed summaries/source history; that is a
+bounded search, not a claim that every historical raw log was searched.
+
+The optional read-only module parameter fm_analog_init_test=1 selects the
+stock FM_AUD_ANALOG path before clock-on. The existing builder then clears
+0x61 bit 7 and skips I2S/MRG setup. No new register definition or guessed
+WMT command is introduced. Default false preserves normal behavior.
+The WMT FM communication strap is deliberately unchanged; it is not
+established as an audio-mode selector.
+
+For a controlled comparison, first restore the known 4.14 #18 environment.
+This module cannot load into the current experimental 4.4 kernel. Load it
+with fm_rx_trace=1 fm_verify_init=1 fm_analog_init_test=1, then use fm-test
+8000 0 and retain raw events and the ready-state readback. Compare with the
+recorded normal-path baseline. This diagnoses DSP initialization; analog
+output has not been routed to the board speaker, and a ready/tune return
+alone is not demonstrated radio reception.
+
+The diagnostic module built successfully, SHA256
+14c80ac879f07d7ace143dc1c7ceb149486391129253fd55f3db1b3304c42b01.
+It has NOT been loaded or tested on hardware because device control is
+still unavailable. Hardware omission remains unproven. Do not mark this
+hypothesis rejected merely because the different I2S-bypass test failed.
