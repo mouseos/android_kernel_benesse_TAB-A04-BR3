@@ -50,3 +50,24 @@ Before writing another system image, restore device control, preserve the
 current system and boot, and validate unattended rollback. A user image
 has no normal adb-root/ro.debuggable console escape. Do not assume that
 receiving kernel UART messages provides a usable shell.
+
+## Graphics ELF inventory
+
+check-gsi-elf-deps.py inventories explicit vendor roots with GNU readelf and
+read-only debugfs listings of the official GSI. Six roots were checked:
+32/64-bit GLESv2, hwcomposer.mt8167, gralloc.mt8167, and the composer 2.1
+and allocator 2.0 service executables. Their vendor-side graph contained
+49 ELF files, with no unlocated DT_NEEDED name in the chosen vendor and
+GSI system/VNDK29/VNDK-SP29/runtime library directories.
+
+REA open_binary separately bound the 64-bit GLESv2 root as ARM64 ELF,
+SHA d793f3896fb02490adf7b83481e032e0f0cd86158f7e7ded9cc938cc61e6ddb4.
+No native decompilation or execution was requested, and that session was
+closed. The dependency inventory is ordinary GNU readelf evidence, not
+REA runtime evidence. REA's lightweight binary-layout tool currently
+advertises only an x86-64 profile, so that profile was not applied to ARM.
+
+This is a bounded file-name inventory. It does not establish Android
+namespace permission, symbol/version compatibility, relocation success,
+dlopen targets, system-side dependency closure, or kernel ABI compatibility.
+A zero unlocated-name count is not a successful GSI or graphics test.
