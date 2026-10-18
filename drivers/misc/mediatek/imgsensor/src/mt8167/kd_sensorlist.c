@@ -79,7 +79,7 @@ static DEFINE_SPINLOCK(kdsensor_drv_lock);
 #define SUPPORT_I2C_BUS_NUM1        1
 #endif
 #ifndef SUPPORT_I2C_BUS_NUM2
-#define SUPPORT_I2C_BUS_NUM2        1
+#define SUPPORT_I2C_BUS_NUM2        0 /* TAB-A04-BR3 (stock): front camera on I2C0 */
 #endif
 
 #ifndef DEMO_BOARD_SUPPORT
