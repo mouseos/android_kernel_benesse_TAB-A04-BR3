@@ -2780,6 +2780,15 @@ static void mtkfb_blank_resume(void)
 	if (get_boot_mode() == FACTORY_BOOT)
 		mtkfb_pan_display_impl(&mtkfb_fbi->var, mtkfb_fbi);
 
+	/*
+	 * blank_suspend turns the backlight off; in normal boot the lights HAL
+	 * turns it back on.  Power-off charging has no lights client, so the
+	 * charger animation would stay dark: restore the backlight here.
+	 */
+	if (get_boot_mode() == KERNEL_POWER_OFF_CHARGING_BOOT ||
+	    get_boot_mode() == LOW_POWER_OFF_CHARGING_BOOT)
+		mt65xx_leds_brightness_set(TYPE_LCD, LED_HALF);
+
 	pr_debug("[FB Driver] leave late_resume\n");
 }
 /*---------------------------------------------------------------------------*/
