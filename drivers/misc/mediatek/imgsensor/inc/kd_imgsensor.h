@@ -251,6 +251,7 @@
 #define HI841_SENSOR_ID                         0x0841
 #define HI707_SENSOR_ID                         0x00b8
 #define HI704_SENSOR_ID                         0x0096
+#define SR200PC20M_SENSOR_ID                    0xb4
 #define HI556_SENSOR_ID                         0x0556
 #define HI551_SENSOR_ID                         0x0551
 #define HI553_SENSOR_ID                         0x0553
@@ -467,6 +468,7 @@
 #define SENSOR_DRVNAME_HI841_MIPI_RAW           "hi841_mipi_raw"
 #define SENSOR_DRVNAME_HI707_YUV                "hi707_yuv"
 #define SENSOR_DRVNAME_HI704_YUV                "hi704_yuv"
+#define SENSOR_DRVNAME_SR200PC20M_MIPI_YUV      "sr200pc20mmipiyuv"
 #define SENSOR_DRVNAME_HI556_MIPI_RAW           "hi556_mipi_raw"
 #define SENSOR_DRVNAME_HI551_MIPI_RAW           "hi551_mipi_raw"
 #define SENSOR_DRVNAME_HI553_MIPI_RAW           "hi553_mipi_raw"
