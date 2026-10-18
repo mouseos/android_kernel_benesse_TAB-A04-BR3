@@ -30,7 +30,7 @@ config MTK_SWCHR_SUPPORT
 config MTK_KERNEL_POWER_OFF_CHARGING
 	bool "MTK kernel power off charging"
 	default n
-	depends on MTK_CHARGER
+	depends on MTK_CHARGER || MTK_SMART_BATTERY
 	help
 	  yes : support KPOC feature, power off charging would running by
 	  kernel and charging animation by kpoc service. no: not support KPOC
