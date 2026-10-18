@@ -14,6 +14,12 @@
 #include <linux/sched.h>
 #include <linux/slab.h>
 #include <linux/interrupt.h>
+#include <linux/moduleparam.h>
+
+/* Opt-in wire evidence; unlike WCN_DBG_LIMITED this preserves error events. */
+static bool fm_rx_trace;
+module_param(fm_rx_trace, bool, 0644);
+MODULE_PARM_DESC(fm_rx_trace, "Dump FM STP receive packets for diagnostics");
 
 #include "fm_typedef.h"
 #include "fm_dbg.h"
@@ -203,6 +209,9 @@ signed int fm_event_parser(signed int(*rds_parser) (struct rds_rx_t *, signed in
 
 	if (fm_wcn_ops.ei.stp_recv_data)
 		len = fm_wcn_ops.ei.stp_recv_data(rx_buf, RX_BUF_SIZE);
+	if (fm_rx_trace && len > 0)
+		print_hex_dump(KERN_INFO, "FM RX: ", DUMP_PREFIX_NONE,
+			16, 1, rx_buf, len, false);
 	WCN_DBG_LIMITED(FM_DBG | LINK, "[len=%d],[CMD=0x%02x 0x%02x 0x%02x 0x%02x]\n", len, rx_buf[0],
 		rx_buf[1], rx_buf[2], rx_buf[3]);
 
