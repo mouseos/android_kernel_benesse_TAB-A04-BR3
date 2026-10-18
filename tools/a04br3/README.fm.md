@@ -79,3 +79,45 @@ normalizing integer typedefs, found identical top-power, clock-on,
 ROM handshake, DSP transfer and digital-init operations. The ECO version
 query differs (metadata only); the patch is selected by FM ROM version.
 This source comparison is not an independent stock-kernel boot test.
+
+## RTC state and remaining evidence boundary
+
+Read-only Android PMIC regmap checks at RTC base 0x8000 returned:
+RTC_PDN1 (0x802c) = 0x0200 and RTC_CON (0x803e) = 0x0407.
+The GPS/connectivity user bit is set and F32KOB (bit 5) is clear.
+This proves the software request, not a waveform at the MT6630 ball.
+The source locations are drivers/mfd/mt6397-core.c (MT6392_RTC_BASE)
+and drivers/mfd/mt6397-misc.c (RTC_PDN1/RTC_CON and enable sequence).
+With this regmap's 16-bit register/value format and stride 2, a record is
+11 bytes. The checks used seekable debugfs reads of only the two records:
+
+```sh
+dd if=/sys/kernel/debug/regmap/1000f000.pwrap/registers bs=11 skip=16406 count=1
+dd if=/sys/kernel/debug/regmap/1000f000.pwrap/registers bs=11 skip=16415 count=1
+```
+
+Validate the printed addresses; do not assume those offsets for a different
+regmap layout. No PMIC write was issued.
+
+MT6630QA external datasheet v1.14a, section 4.1 (PDF page 31), describes
+automatic internal-32K fallback but also requires host-supplied XTAL
+frequency information in that mode. The MT6630-specific public driver
+path for that second condition is not established here. Blindly disabling
+RTC is not a valid completed internal-clock A/B test. QP applicability is
+also unverified; the attached chip datasheet describes QA.
+
+Prior Armbian evidence covers page-F reselection, host-driven Digital Init,
+normal and disabled DSP patch execution, 256-byte DSP segmentation,
+MRG/I2S bypass, old/new top-power sequences, post-transfer ROM handshake,
+RTC request order, FM strap/DAI and WMT bootstrap comparisons. None of those
+is a fresh untested fix to rerun without a new discrepancy. The stock WMT
+substitution and Android readback in this branch provide independent stack
+checks, not an exclusion of every software cause.
+
+The practical evidence boundary is physical FM supply/clock delivery versus
+an undocumented image-specific startup condition or silicon configuration.
+The current microscopic photos do not prove the relevant nets are absent.
+There is no defensible quantitative basis for a 99% hardware-omission claim.
+Useful new inputs are a QP/board schematic identifying AVDD33_FM and RTCCLK,
+measurements at those nets, or an MT6630-specific documented internal-32K
+frequency setup sequence. This is an unresolved FM bring-up result.
