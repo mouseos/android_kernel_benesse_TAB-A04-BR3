@@ -65,6 +65,8 @@ build_mod wmt_drv common
 build_mod wmt_chrdev_wifi wlan/adaptor wmt_drv
 build_mod wlan_drv_gen3 wlan/core/gen3 wmt_drv wmt_chrdev_wifi
 build_mod bt_drv bt/mt66xx/legacy wmt_drv
+# MT6630 FM (CONFIG_MTK_FMRADIO=y, CONFIG_MTK_FM_CHIP="MT6630_FM" in a04br3_defconfig)
+build_mod fmradio_drv fmradio wmt_drv
 cp "$kout/arch/arm64/boot/Image.gz-dtb" "$out/dist/Image.gz-dtb"
 
 if [[ -n "$device_dir" ]]; then
