@@ -13,6 +13,11 @@
 
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
+#include <linux/moduleparam.h>
+
+static bool fm_verify_init;
+module_param(fm_verify_init, bool, 0644);
+MODULE_PARM_DESC(fm_verify_init, "Read back DSP readiness and reject false init completion");
 
 #include "stp_exp.h"
 #include "wmt_exp.h"
@@ -723,6 +728,41 @@ out:
 	return ret;
 }
 
+/* Read-only diagnostic of the same readiness condition used by digital init. */
+static int mt6630_verify_init(void)
+{
+	static const unsigned char fm_regs[] = {0x60, 0x61, 0x62, 0x64, 0x83, 0x84};
+	static const unsigned int host_regs[] = {
+		0x8102123c, 0x81021134, 0x81020010,
+		0x81021430, 0x81020008, 0x80000108,
+	};
+	unsigned short value, ready = 0;
+	unsigned int host_value;
+	int i, ret, ready_ret = -EIO;
+
+	for (i = 0; i < ARRAY_SIZE(fm_regs); i++) {
+		value = 0;
+		ret = fm_reg_read(fm_regs[i], &value);
+		pr_info("FM INIT fm[%02x]=%04x ret=%d\n", fm_regs[i], value, ret);
+		if (fm_regs[i] == 0x64) {
+			ready = value;
+			ready_ret = ret;
+		}
+	}
+	for (i = 0; i < ARRAY_SIZE(host_regs); i++) {
+		host_value = 0;
+		ret = fm_host_reg_read(host_regs[i], &host_value);
+		pr_info("FM INIT host[%08x]=%08x ret=%d\n", host_regs[i], host_value, ret);
+	}
+	if (ready_ret)
+		return ready_ret;
+	if ((ready & 0x1f) != 2) {
+		pr_err("FM INIT DSP not ready: %04x (expected low five bits 2)\n", ready);
+		return -EIO;
+	}
+	return 0;
+}
+
 static signed int mt6630_PowerUp(unsigned short *chip_id, unsigned short *device_id)
 {
 	signed int ret = 0, reg = 0;
@@ -797,6 +837,11 @@ static signed int mt6630_PowerUp(unsigned short *chip_id, unsigned short *device
 		return ret;
 	}
 
+	if (fm_verify_init) {
+		ret = mt6630_verify_init();
+		if (ret)
+			return ret;
+	}
 	WCN_DBG(FM_NTC | CHIP, "pwr on seq ok\n");
 
 	return ret;

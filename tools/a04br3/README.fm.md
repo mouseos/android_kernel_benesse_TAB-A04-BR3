@@ -42,3 +42,40 @@ The trace is evidence of the failure stage, not proof of hardware omission.
 No reception, audio or RDS was obtained. Firmware and boot were unchanged.
 Prior Hennessy WMT substitution failed combo initialization in Armbian;
 that is not evidence that all firmware alternatives are exhausted.
+
+## Independent readback and stock WMT comparison
+
+The TAB-A04-BR3 stock Android 7 build 01.06.000 contains 20190702 WMT
+patches. Normal Android 10 BSP inputs use 20200515. Swapping only the two
+stock patches, rebooting, and rerunning the same test still returned 1005
+and the same raw 0x22 event. Stock patches initialized successfully. The
+BSP pair was restored and verified by hash and by its boot-time timestamp.
+
+An optional second module parameter, fm_verify_init=1, snapshots FM and
+host registers after digital init and requires the exact condition used
+by the existing BOP: (reg[0x64] & 0x1f) == 2. It defaults to false.
+For that test, load the module with both fm_rx_trace=1 fm_verify_init=1.
+Readback on the restored BSP firmware showed:
+
+| Register | Value |
+| --- | --- |
+| FM 60,61,62,64,83,84 | 0000 (all reads returned 0) |
+| host 8102123c | 741fee1e |
+| host 81021134 | 03807886 |
+| host 81020010 | 0000c00f |
+| host 81021430 | 80000187 |
+| host 81020008 | 00030033 |
+| host 80000108 | 00000000 |
+
+The last register is an enable-write address from the stock sequence;
+its zero readback alone does not establish actual clock-gate status.
+The optional check returned EIO before tune, avoiding the misleading
+power-up success message. This is a diagnostic improvement, not an FM fix.
+No actual reception was observed. AOSP, reference BSP, main and release
+artifacts were unchanged. The boot partition hash remained unchanged.
+
+Comparison with the project copy of the product 4.4 MT6630 driver, after
+normalizing integer typedefs, found identical top-power, clock-on,
+ROM handshake, DSP transfer and digital-init operations. The ECO version
+query differs (metadata only); the patch is selected by FM ROM version.
+This source comparison is not an independent stock-kernel boot test.
