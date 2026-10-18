@@ -589,6 +589,13 @@ static void mt_usb_detect_init(struct platform_device *pdev)
 		return;
 	ret = devm_gpio_request_one(&pdev->dev, usb_detect_pin, GPIOF_IN,
 				    "usb_detect");
+#ifdef CONFIG_STS_CHARGER_SUPPORT
+	/* The STS BQ24160 driver already owns this active-low input. Keep
+	 * its ownership and direction; USB only reads it and handles its IRQ.
+	 */
+	if (ret == -EBUSY)
+		ret = 0;
+#endif
 	if (ret) {
 		DBG(0, "usb_detect_gpio request failed: %d\n", ret);
 		usb_detect_pin = -EINVAL;
@@ -706,6 +713,12 @@ bool usb_cable_connected(void)
 
 		/* VBUS CHECK to avoid type miss-judge */
 		vbus_exist = musb_hal_is_vbus_exist();
+		/* A separate USB-detect input identifies the data connector,
+		 * independently of the DC adapter and the cached charger type.
+		 * The USB IRQ may run before the battery thread updates that type.
+		 */
+		if (gpio_is_valid(usb_detect_pin))
+			connected = vbus_exist;
 
 		DBG(0, "%s vbus_exist=%d type=%d\n",
 			__func__, vbus_exist, chg_type);
