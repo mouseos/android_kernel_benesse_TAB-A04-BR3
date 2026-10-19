@@ -24,8 +24,7 @@ log boot-restored-verified
 # A separate process returns to the restored kernel even if the ioctl blocks.
 ( sleep 150; echo 'FMCONTROL deadline-reboot' > /dev/kmsg; sync; echo b > /proc/sysrq-trigger ) &
 DEADMAN=$!
-i=0
-while [ "$(getprop sys.boot_completed)" != 1 ] && [ "$i" -lt 60 ]; do sleep 1; i=$((i+1)); done
+sleep 5 # Connectivity is started by init; Android UI completion is unnecessary.
 log "test-start boot_completed=$(getprop sys.boot_completed)"
 ls -l /dev/fm
 cat /proc/modules
