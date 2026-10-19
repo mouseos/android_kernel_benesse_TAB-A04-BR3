@@ -151,3 +151,32 @@ The diagnostic module built successfully, SHA256
 It has NOT been loaded or tested on hardware because device control is
 still unavailable. Hardware omission remains unproven. Do not mark this
 hypothesis rejected merely because the different I2S-bypass test failed.
+
+## Completed analog and product-kernel controls
+
+The earlier pending/control-unavailable statements above are historical.
+The original 4.14 kernel was restored; analog mode was actually loaded
+with fm_rx_trace=1 fm_verify_init=1 fm_analog_init_test=1. It returned EIO
+before tuning, with FM60/61/62/64/83/84 all zero and the same
+04 22 02 00 e8 03 04 07 00 00 response. Analog mode did not fix DSP startup.
+
+Product-derived 4.4 controls were then executed using the validated
+one-shot boot restoration procedure. The camera HAL had to be temporarily
+disabled because its feature_control path caused a kernel NULL dereference.
+The product WMT header also excluded FM operations despite MTK_FMRADIO=y:
+fm-stock44-20261019 commit47da57a8 enables the existing operations with
+that Kconfig selection. The resulting vmlinux contains wmt_func_fm_ops.
+Use the -DFM_PRODUCT44 helper because this older tune ABI lacks deemphasis.
+
+Both WMT 20200515 and the product's 20190702 pair initialized successfully
+on that 4.4 kernel. Each reached FM function-on, ROM index1/v2 image
+selection, patch version0x100 and DSP image download. Both then timed out
+at tune with POWERUP errno1005. Their traces contain opcode0x22/e803
+during initialization, matching the independent-stack symptom. No FM
+reception was demonstrated. Kernel-only control on Android10 is not a
+complete stock Android7 test. It does not establish hardware omission.
+
+All grounded, currently executable comparisons identified in this review
+have failed. Stop speculative experimentation. Physical supply/clock
+measurements, a board/package specification or a documented alternative
+startup condition would be needed to resolve the remaining causes.

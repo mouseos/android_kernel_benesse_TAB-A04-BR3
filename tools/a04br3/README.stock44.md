@@ -73,3 +73,18 @@ aarch64-linux-gnu-gcc -static -DFM_PRODUCT44 -O2 -Wall -Wextra
 tools/a04br3/fm-test.c -o fm-test-stock44 and install as
 /data/local/tmp/a04br3-fm-test-stock44. The normal 4.14 test is unchanged.
 Remove the temporary service/script and restore the camera rc after testing.
+
+## FM control outcome
+
+The former pending statements are historical. The corrected 4.4 kernel
+was booted and the receive helper executed with both WMT20200515 and
+product WMT20190702. Existing WMT FM operations must be included using
+fm-stock44-20261019 commit47da57a8; the original product's unconfigured
+CONFIG_MTK_COMBO_FM gate otherwise leaves function1 without operations.
+
+Both firmware pairs reached ROM and DSP image download, but POWERUP
+returned errno1005 at tune. Traces retain the same opcode0x22/e803
+initialization symptom. The one-shot service restored the full original
+16MiB boot and verified SHA760cf0d774211d7d705fae1dc2618cadd3fc6be88534410ebd4d5899630093f4
+before each trial, then automatically rebooted to 4.14.141+ #18.
+No receiver success or hardware-cause certainty is claimed.
