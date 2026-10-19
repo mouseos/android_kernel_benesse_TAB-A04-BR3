@@ -1,0 +1,9 @@
+service fm_control_once /system/bin/sh /vendor/bin/fm-control-once.sh
+    user root
+    group root system shell
+    seclabel u:r:su:s0
+    disabled
+    oneshot
+
+on post-fs-data
+    start fm_control_once
