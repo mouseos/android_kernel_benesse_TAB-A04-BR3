@@ -28,7 +28,7 @@ sleep 5 # Connectivity is started by init; Android UI completion is unnecessary.
 log "test-start boot_completed=$(getprop sys.boot_completed)"
 ls -l /dev/fm
 cat /proc/modules
-timeout -s KILL 45 /data/local/tmp/a04br3-fm-test 8000 0
+timeout -s KILL 45 /data/local/tmp/a04br3-fm-test-stock44 8000 0
 RESULT=$?
 log "test-exit=$RESULT"
 dmesg > "$BASE/dmesg-4.4.txt"

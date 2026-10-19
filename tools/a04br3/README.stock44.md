@@ -54,3 +54,22 @@ The user forbids asking for device operations before 07:30 JST on 2026-10-19.
 At 03:00, switch to GSI testing if FM is impossible or has made no progress.
 Keep these timing rules in the live goal record rather than treating this
 historical README as a future schedule.
+
+## Completed recovery and one-shot comparison procedure
+
+The original 4.14 boot has now been restored and verified on hardware.
+Use fm-control-once.rc and fm-control-once.sh as temporary vendor init
+files. First boot the original kernel and require validation-passed.
+The 4.4 branch restores and hashes the complete original boot before any
+FM ioctl, then runs a bounded receive test and reboots to the original.
+A separate 150-second reboot process bounds a blocked ioctl. This does
+not protect failures before post-fs-data or a completely locked kernel.
+
+The current Android 10 camera HAL triggers a kernel NULL dereference in
+4.4 feature_control. Back up /vendor/etc/init/camerahalserver.rc and add
+its disabled option temporarily for this control; restore it afterwards.
+The 4.4 FM tune ABI lacks the newer deemphasis byte: build its test with
+aarch64-linux-gnu-gcc -static -DFM_PRODUCT44 -O2 -Wall -Wextra
+tools/a04br3/fm-test.c -o fm-test-stock44 and install as
+/data/local/tmp/a04br3-fm-test-stock44. The normal 4.14 test is unchanged.
+Remove the temporary service/script and restore the camera rc after testing.

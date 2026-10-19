@@ -17,7 +17,9 @@ struct fm_tune_parm {
 	uint8_t band;
 	uint8_t space;
 	uint8_t hilo;
+#ifndef FM_PRODUCT44
 	uint8_t deemphasis;
+#endif
 	uint16_t freq;
 };
 
